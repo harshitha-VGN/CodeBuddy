@@ -31,7 +31,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border px-6 py-3 flex justify-between items-center">
       <div className="flex items-center gap-8">
         <Link to="/dashboard" className="font-head text-xl font-black text-accent italic">
-          CODE<span className="text-white">BUDDY</span>
+          PEER<span className="text-white">FORGE</span>
         </Link>
         
         <div className="hidden md:flex gap-1">
