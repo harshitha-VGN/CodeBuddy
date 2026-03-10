@@ -58,12 +58,22 @@ const AddCardModal = ({ onClose, onAdded }) => {
           <div>
             <label className="text-[10px] font-mono uppercase tracking-widest text-muted mb-1 block">Problem Title</label>
             <input value={form.problemTitle} onChange={e => setForm(f => ({...f, problemTitle: e.target.value}))}
-              placeholder="e.g. Two Sum" className="w-full bg-bg border border-border rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-accent" />
+              placeholder="Keep your comfortable name for question rememberance" className="w-full bg-bg border border-border rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-accent" />
           </div>
           <div>
-            <label className="text-[10px] font-mono uppercase tracking-widest text-muted mb-1 block">LeetCode Slug</label>
-            <input value={form.problemSlug} onChange={e => setForm(f => ({...f, problemSlug: e.target.value}))}
-              placeholder="e.g. two-sum" className="w-full bg-bg border border-border rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-accent font-mono" />
+            <label className="text-[10px] font-mono uppercase tracking-widest text-muted mb-1 block">
+              LeetCode Slug
+            </label>
+            <input 
+              value={form.problemSlug} 
+              onChange={e => setForm(f => ({...f, problemSlug: e.target.value}))}
+              placeholder="two-sum" 
+              className="w-full bg-bg border border-border rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-accent font-mono" 
+            />
+            {/* Instructional Hint */}
+            <p className="text-[9px] text-muted mt-2 px-1 italic leading-relaxed font-mono uppercase tracking-tighter">
+              Copy from URL: leetcode.com/problems/<span className="text-accent font-bold underline">this-part</span>/
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -93,6 +103,7 @@ const AddCardModal = ({ onClose, onAdded }) => {
 };
 
 // ─── Flip Card Component ──────────────────────────────────────────────────────
+
 const FlipCard = ({ card, onRate, onSkip, sessionProgress, sessionTotal }) => {
   const [flipped, setFlipped] = useState(false);
   const [rating, setRating] = useState(null);
@@ -103,9 +114,14 @@ const FlipCard = ({ card, onRate, onSkip, sessionProgress, sessionTotal }) => {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if (!flipped) { if (e.key === " " || e.key === "Enter") setFlipped(true); return; }
-      const r = parseInt(e.key);
-      if (r >= 1 && r <= 4 && !submitting) handleRate(r);
+      if (e.key === " " || e.key === "Enter") {
+        setFlipped(!flipped); // Space now toggles both ways
+        return;
+      }
+      if (flipped) {
+        const r = parseInt(e.key);
+        if (r >= 1 && r <= 4 && !submitting) handleRate(r);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -127,78 +143,95 @@ const FlipCard = ({ card, onRate, onSkip, sessionProgress, sessionTotal }) => {
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
       {/* Progress bar */}
-      <div className="w-full mb-6">
+      <div className="w-full mb-6 px-2">
         <div className="flex justify-between text-[10px] font-mono text-muted uppercase mb-2">
-          <span>Progress</span>
+          <span>Current Session</span>
           <span>{sessionProgress}/{sessionTotal} reviewed</span>
         </div>
-        <div className="w-full h-1 bg-surface2 rounded-full overflow-hidden">
-          <div className="h-full bg-accent rounded-full transition-all duration-500"
+        <div className="w-full h-1.5 bg-surface2 rounded-full overflow-hidden border border-white/5">
+          <div className="h-full bg-accent rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(124,106,255,0.5)]"
             style={{ width: `${sessionTotal > 0 ? (sessionProgress / sessionTotal) * 100 : 0}%` }} />
         </div>
       </div>
 
       {/* The card */}
-      <div className="w-full" style={{ perspective: "1200px" }}>
+      <div className="w-full" style={{ perspective: "1500px" }}>
         <div
-          onClick={() => !flipped && setFlipped(true)}
-          className="relative w-full transition-all duration-700 cursor-pointer"
+          className="relative w-full transition-all duration-700 ease-in-out cursor-default"
           style={{
             transformStyle: "preserve-3d",
             transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-            minHeight: "320px",
+            minHeight: "420px",
           }}
         >
-          {/* Front — problem name hidden, just category/diff */}
-          <div className="absolute inset-0 bg-surface border border-border rounded-3xl p-8 flex flex-col justify-between"
-            style={{ backfaceVisibility: "hidden" }}>
+          {/* FRONT SIDE */}
+          <div 
+            onClick={() => setFlipped(true)}
+            className="absolute inset-0 bg-surface border border-border rounded-[2.5rem] p-10 flex flex-col justify-between shadow-xl cursor-pointer hover:border-accent/40 transition-colors"
+            style={{ backfaceVisibility: "hidden" }}
+          >
             <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-bold uppercase ${diffColor(card.difficulty)}`}>
+              <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-black uppercase ${diffColor(card.difficulty)}`}>
                 {card.difficulty}
               </span>
-              <span className="text-[10px] font-mono text-muted uppercase tracking-widest">{card.category}</span>
+              <span className="text-[10px] font-mono text-muted uppercase tracking-[0.2em]">{card.category}</span>
             </div>
 
             <div className="text-center py-8">
-              <div className="text-muted text-[10px] font-mono uppercase tracking-[0.3em] mb-4">Can you solve this?</div>
-              <h2 className="text-3xl font-head font-black uppercase tracking-tight text-white leading-tight">
+              <div className="text-accent/40 text-[10px] font-mono uppercase tracking-[0.4em] mb-6 animate-pulse">Ready to Recall?</div>
+              <h2 className="text-4xl font-head font-black uppercase tracking-tighter text-white leading-none">
                 {card.problemTitle}
               </h2>
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-muted text-xs font-mono">
-              <span className="animate-pulse">SPACE / CLICK to reveal your confidence</span>
+            <div className="flex flex-col items-center gap-3">
+               <div className="text-muted text-[9px] font-mono uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full">
+                  Click anywhere on the card to flip
+               </div>
             </div>
           </div>
 
-          {/* Back — rating buttons */}
-          <div className="absolute inset-0 bg-surface border border-accent/20 rounded-3xl p-8 flex flex-col justify-between"
+          {/* BACK SIDE */}
+          <div className="absolute inset-0 bg-surface border border-accent/30 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-2xl shadow-accent/5"
             style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+            
             <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-bold uppercase ${diffColor(card.difficulty)}`}>
+              <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-black uppercase ${diffColor(card.difficulty)}`}>
                 {card.difficulty}
               </span>
-              <a href={`https://leetcode.com/problems/${card.problemSlug}/`} target="_blank" rel="noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="text-[10px] font-mono text-muted hover:text-accent flex items-center gap-1 uppercase">
-                Open <ExternalLink size={10}/>
-              </a>
+              {/* Requirement 1: Flip Back Button */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
+                className="text-[9px] font-mono text-muted hover:text-white flex items-center gap-1.5 uppercase bg-white/5 px-3 py-1.5 rounded-lg transition"
+              >
+                <RotateCcw size={10}/> Flip Back
+              </button>
             </div>
 
             <div className="text-center">
-              <h2 className="text-2xl font-head font-black uppercase tracking-tight text-white mb-2">{card.problemTitle}</h2>
-              <p className="text-muted text-xs font-mono">How well did you recall the solution approach?</p>
+              <h2 className="text-3xl font-head font-black uppercase tracking-tighter text-white mb-2">{card.problemTitle}</h2>
+              
+              {/* Requirement 2: Big LeetCode Button */}
+              <a 
+                href={`https://leetcode.com/problems/${card.problemSlug}/`} 
+                target="_blank" 
+                rel="noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-all transform hover:scale-105 shadow-lg mt-4"
+              >
+                Open on LeetCode <ExternalLink size={14}/>
+              </a>
             </div>
 
-            <div>
-              <div className="text-[10px] font-mono text-muted uppercase tracking-widest text-center mb-3">Rate your recall (keys 1–4)</div>
+            <div className="bg-bg/50 p-6 rounded-3xl border border-white/5">
+              <div className="text-[10px] font-mono text-muted uppercase tracking-[0.2em] text-center mb-4">Rate your recall accuracy</div>
               <div className="grid grid-cols-4 gap-2">
                 {ratingConfig.map(({ rating: r, label, sub, color }) => (
                   <button key={r} onClick={(e) => { e.stopPropagation(); handleRate(r); }}
                     disabled={submitting}
-                    className={`border rounded-xl py-3 px-2 font-black text-xs uppercase transition-all ${color} ${rating === r ? "scale-95 opacity-70" : "hover:scale-[1.03]"} disabled:opacity-50`}>
-                    <div className="text-sm font-black">{label}</div>
-                    <div className="text-[9px] opacity-70 font-normal mt-0.5">{sub}</div>
+                    className={`border rounded-2xl py-4 px-2 font-black text-xs uppercase transition-all ${color} ${rating === r ? "scale-95 ring-2 ring-white" : "hover:translate-y-[-2px]"} disabled:opacity-50`}>
+                    <div className="text-xs font-black">{label}</div>
+                    <div className="text-[8px] opacity-60 font-normal mt-0.5 tracking-tighter">{sub}</div>
                   </button>
                 ))}
               </div>
@@ -207,8 +240,8 @@ const FlipCard = ({ card, onRate, onSkip, sessionProgress, sessionTotal }) => {
         </div>
       </div>
 
-      <button onClick={onSkip} className="mt-4 text-[10px] font-mono text-muted hover:text-white uppercase tracking-widest transition">
-        Skip for now →
+      <button onClick={onSkip} className="mt-8 text-[10px] font-mono text-muted hover:text-white uppercase tracking-[0.3em] transition opacity-40 hover:opacity-100">
+        Skip this card for now →
       </button>
     </div>
   );
@@ -454,7 +487,7 @@ const Review = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
           <h1 className="text-4xl font-head font-black uppercase">REVISION QUEUE</h1>
-          <p className="text-muted text-sm mt-1">SM-2 spaced repetition — the same algorithm as Anki.</p>
+          
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowAddModal(true)}
