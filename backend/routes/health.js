@@ -1,10 +1,9 @@
-import {Router} from "express" 
-import { healthCheck } from "../controllers/healthController.js"
-import authMiddleware from "../middleware/authMiddleware.js";
+import { Router } from "express";
+const router = Router();
 
-const router=Router()
+// No authMiddleware here!
+router.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Server is Running" });
+});
 
-router.get('/',authMiddleware,healthCheck)
-
-
-export default router
+export default router;
