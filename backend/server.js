@@ -22,8 +22,19 @@ connectDB();
 
 const app = express();
 const httpServer = createServer(app);
+
+// 1. Define allowed origins 
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ["http://localhost:3000"];
+
+// 2. Update the Socket.io initialization
 const io = new Server(httpServer, {
-  cors: { origin: "*" } // Adjust for production
+  cors: {
+    origin: allowedOrigins, 
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 app.use(cors({
