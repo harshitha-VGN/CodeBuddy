@@ -25,8 +25,10 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*" } // Adjust for production
 });
+
 app.use(cors({
-  origin: "http://localhost:3000", // Allow your React web app
+  
+  origin: ["https://peer-forge-1.vercel.app","http://localhost:3000"], 
   credentials: true
 }));
 
